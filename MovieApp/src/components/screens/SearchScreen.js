@@ -11,7 +11,7 @@ export default function SearchScreen() {
   const [results, setResults] = useState([]);
   const [error, setError] = useState('');
 
-
+const media_type = (searchType === 'multi') ? '' : searchType;
   
 
 
@@ -28,7 +28,7 @@ export default function SearchScreen() {
     setResults([]); 
   };
 
-  const renderItem = ({ item }) => <CardComponent item={item} />;
+  const renderItem = ({ item }) => <CardComponent item={item} mediaTypeOverride={media_type}  />;
 
   return (
     <View style={styles.container}>
@@ -95,7 +95,7 @@ const styles = StyleSheet.create({
   },
   label: {
     fontSize: 16,
-    fontWeight: 'bold',
+    fontWeight: 'normal',
     marginBottom: 8,
   },
   required: {
@@ -123,6 +123,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row', 
     alignItems: 'center',
     justifyContent: 'space-between',  
+    paddingBottom: 16,
   },
   pickerContainer: {
     flex: 1,
