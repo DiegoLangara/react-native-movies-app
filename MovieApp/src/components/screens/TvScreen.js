@@ -1,64 +1,26 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, FlatList, StyleSheet, Image, TouchableOpacity } from 'react-native';
-import axios from 'axios';
-import { useNavigation } from '@react-navigation/native'; 
-import { TMDB_ACCESS_TOKEN } from '../../config/apiConfig';
+import { View, Text, FlatList, StyleSheet, TouchableOpacity } from 'react-native';
 import { Picker } from '@react-native-picker/picker';  
 import Icon from 'react-native-vector-icons/FontAwesome';  // Import FontAwesome icons
+import CardComponent from '../layout/CardComponent';
+import { fetchMedia } from '../../services/HelperFunctions';
 
 export default function TvScreen() {
-  const [tvShows, setTvShows] = useState([]);
+  const [media, setMedia] = useState([]);
   const [category, setCategory] = useState('airing_today');
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
-  const navigation = useNavigation(); 
+  const media_type = 'tv';
 
   useEffect(() => {
-    fetchTvShows();
-  }, [category, page]);
+    fetchMedia(media_type, category, page, setMedia, setTotalPages);  
+  }, [media_type, category, page]);
 
-  // Fetch TV shows with pagination and Bearer token authentication
-  const fetchTvShows = async () => {
-    try {
-      const response = await axios.get(
-        `https://api.themoviedb.org/3/tv/${category}?language=en-US&page=${page}`, 
-        {
-          headers: {
-            accept: 'application/json',
-            Authorization: `Bearer ${TMDB_ACCESS_TOKEN}`
-          }
-        }
-      );
-      setTvShows(response.data.results);
-      setTotalPages(response.data.total_pages);  // Set total pages from the API response
-    } catch (error) {
-      console.error(error);
-    }
-  };
-
-  const renderItem = ({ item }) => (
-    <View style={styles.card}>
-      <Image
-        source={{ uri: `https://image.tmdb.org/t/p/w500${item.poster_path}` }}  // TV show image
-        style={styles.image}
-      />
-      <View style={styles.cardContent}>
-        <Text style={styles.itemTitle}>{item.name}</Text>
-        <Text>Popularity: {item.popularity}</Text>
-        <Text>First Air Date: {item.first_air_date}</Text>
-        <TouchableOpacity
-          style={styles.detailsButton}
-          onPress={() => navigation.navigate('TvDetail', { tvId: item.id, mediaType: 'tv' })}  // Navigate to TV show details
-        >
-         <Text style={styles.detailsButtonText}>More Details   <Icon name="plus-square" size={13} color="#fff" /></Text>
-        </TouchableOpacity>
-      </View>
-    </View>
-  );
+  const renderItem = ({ item }) => <CardComponent item={item} mediaTypeOverride={media_type} />;
 
   return (
     <View style={styles.container}>
-      {/* Dropdown for category selection */}
+         <View style={styles.pickerWrapper}>
       <Picker
         selectedValue={category}
         style={styles.picker}
@@ -69,15 +31,15 @@ export default function TvScreen() {
         <Picker.Item label="Popular" value="popular" />
         <Picker.Item label="Top Rated" value="top_rated" />
       </Picker>
+</View>
 
-      {/* TV show list */}
       <FlatList
-        data={tvShows}
+        data={media}
         keyExtractor={(item) => item.id.toString()}
         renderItem={renderItem}
       />
 
-      {/* Pagination */}
+     
       <View style={styles.pagination}>
         {page > 1 && (
           <TouchableOpacity style={styles.paginationButtonLeft} onPress={() => setPage(page - 1)}>
@@ -86,7 +48,7 @@ export default function TvScreen() {
           </TouchableOpacity>
         )}
         
-        {/* Page number display */}
+        
         <View style={styles.pageInfo}>
         <Text style={styles.pageInfoText}>{page} of {totalPages}</Text>
         </View>
@@ -107,11 +69,24 @@ const styles = StyleSheet.create({
     padding: 16,
     paddingBottom: 10,
   },
+ pickerWrapper: {
+    marginLeft: 'auto',
+    marginRight: 'auto',
+    borderWidth: 1,
+    borderColor: '#ccc',
+    borderRadius: 8,
+    backgroundColor: '#fff',
+    paddingBottom: 15,
+    paddingTop: 0,
+    marginBottom: 16,
+    width: 200,
+  },
   picker: {
     height: 30,
     width: 200,
     alignSelf: 'center',
-    marginBottom: 5,
+    marginTop: -10 ,
+    marginRight: -5,
   },
   card: {
     flexDirection: 'row',

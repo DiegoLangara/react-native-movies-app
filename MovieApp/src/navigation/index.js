@@ -7,8 +7,7 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack'; // 
 import MovieScreen from '../components/screens/MoviesScreen';
 import SearchScreen from '../components/screens/SearchScreen';
 import TvScreen from '../components/screens/TvScreen';
-import MovieDetail from '../components/screens/MovieDetail';  // MovieDetail screen
-import TvDetail from '../components/screens/TvDetail';  // TvDetail screen
+import MediaDetail from '../components/screens/MediaDetail';  // TvDetail screen
 
 
 // Create the stack navigator
@@ -24,17 +23,17 @@ function MyTabs() {
       screenOptions={{
         tabBarActiveTintColor: '#0f4067',
         tabBarInactiveTintColor: 'lightgray',
-        tabBarLabelStyle: { 
-          fontSize: 14, 
-          textTransform: 'none', 
-          fontWeight: 'bold', 
+        tabBarLabelStyle: {
+          fontSize: 14,
+          textTransform: 'none',
+          fontWeight: 'bold',
           padding: 0,
           width: '100%',
           textAlign: 'center',
         },
         tabBarStyle: { backgroundColor: 'white' },
-        tabBarIndicatorStyle: { 
-          backgroundColor: '#0f4067', 
+        tabBarIndicatorStyle: {
+          backgroundColor: '#0f4067',
           height: 3,
         },
       }}
@@ -64,16 +63,17 @@ export default function App() {
     <NavigationContainer>
       <Stack.Navigator>
         {/* Tab navigator with Movies, Search, and TV Shows */}
-        <Stack.Screen 
-          name="MainTabs" 
-          component={MyTabs} 
+        <Stack.Screen
+          name="MainTabs"
+          component={MyTabs}
           options={{ headerShown: false }}  // Hide the header for the tab navigator
         />
         {/* MovieDetail screen */}
-        <Stack.Screen 
-          name="MovieDetail" 
-          component={MovieDetail}
-          options={{ title: 'Move Details',
+        <Stack.Screen
+          name="MovieDetail"
+          component={MediaDetail}
+          options={{
+            title: 'Movie Details',
             headerTitleAlign: 'center',  // Center the title
             headerTitleStyle: {           // Apply custom style to the title
               fontSize: 20,
@@ -83,24 +83,42 @@ export default function App() {
             headerStyle: {                // You can also style the header background
               backgroundColor: '#9edbe7',  // Light gray background
             },
-           }} 
-         
+          }}
+
         />
-        <Stack.Screen 
-  name="TvDetail" 
-  component={TvDetail} 
-  options={{ title: 'TV Details',
-    headerTitleAlign: 'center',  // Center the title
-    headerTitleStyle: {           // Apply custom style to the title
-      fontSize: 20,
-      fontWeight: 'bold',
-      color: '#2D3420',
-    },
-    headerStyle: {                // You can also style the header background
-      backgroundColor: '#98ae6c',  // Light gray background
-    },
-   }} 
-/>
+        <Stack.Screen
+          name="PersonDetail"
+          component={MediaDetail}
+          options={{
+            title: 'Person Details',
+            headerTitleAlign: 'center',  // Center the title
+            headerTitleStyle: {           // Apply custom style to the title
+              fontSize: 20,
+              fontWeight: 'bold',
+              color: '#352925',
+            },
+            headerStyle: {                // You can also style the header background
+              backgroundColor: '#d7bcb4',  // Light gray background
+            },
+          }}
+
+        />
+        <Stack.Screen
+          name="TvDetail"
+          component={MediaDetail}
+          options={{
+            title: 'TV Show Details',
+            headerTitleAlign: 'center',  // Center the title
+            headerTitleStyle: {           // Apply custom style to the title
+              fontSize: 20,
+              fontWeight: 'bold',
+              color: '#2D3420',
+            },
+            headerStyle: {                // You can also style the header background
+              backgroundColor: '#c4d3b1',  // Light gray background
+            },
+          }}
+        />
       </Stack.Navigator>
     </NavigationContainer>
   );

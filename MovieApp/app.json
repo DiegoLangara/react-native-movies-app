@@ -1,7 +1,7 @@
 {
   "expo": {
     "name": "MovieApp",
-    "slug": "MovieApp",
+    "slug": "movieapp",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
@@ -18,10 +18,17 @@
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
-      }
+      },
+      "package": "com.inteligencia.movieapp"
     },
     "web": {
       "favicon": "./assets/favicon.png"
-    }
+    },
+    "extra": {
+      "eas": {
+        "projectId": "54627a62-5471-44d2-8451-86d7f4e7cf25"
+      }
+    },
+    "owner": "diealm"
   }
 }

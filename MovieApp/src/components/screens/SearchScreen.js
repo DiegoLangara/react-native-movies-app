@@ -1,94 +1,82 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, Button, FlatList, StyleSheet, TouchableOpacity, Image, Alert } from 'react-native';
-import axios from 'axios';
-import { TMDB_ACCESS_TOKEN } from '../../config/apiConfig';
+import { View, Text, TextInput, FlatList, StyleSheet, TouchableOpacity, ScrollView } from 'react-native';
 import { Picker } from '@react-native-picker/picker';  
-import Icon from 'react-native-vector-icons/FontAwesome';  // Import FontAwesome icons
-import { useNavigation } from '@react-navigation/native';
+import Icon from 'react-native-vector-icons/FontAwesome';  
+import CardComponent from '../layout/CardComponent';
+import { searchMedia } from '../../services/HelperFunctions';
 
 export default function SearchScreen() {
   const [query, setQuery] = useState(''); 
   const [searchType, setSearchType] = useState('movie'); 
   const [results, setResults] = useState([]);
-  const [error, setError] = useState(''); 
-  const navigation = useNavigation();
+  const [error, setError] = useState('');
 
-  // Function to perform search based on query and type
-  const searchMedia = async () => {
-    if (!query) {
-      setError('Movie/TV show name is required');
-      return;
-    }
 
-    try {
-      const response = await axios.get(
-        `https://api.themoviedb.org/3/search/${searchType}?query=${query}`,
-        {
-          headers: {
-            accept: 'application/json',
-            Authorization: `Bearer ${TMDB_ACCESS_TOKEN}`
-          }
-        }
-      );
-      setResults(response.data.results);
-      setError(''); // Clear any previous error message
-    } catch (error) {
-      console.error(error);
+  
+
+
+  const handleInputChange = (text) => {
+    setQuery(text);
+    if (!text) {
+      setResults([]); 
     }
   };
 
-  const renderItem = ({ item }) => (
-    <View style={styles.card}>
-      <Image
-        source={{ uri: `https://image.tmdb.org/t/p/w500${item.poster_path}` }}  
-        style={styles.image}
-      />
-      <View style={styles.cardContent}>
-        <Text style={styles.itemTitle}>{item.title || item.name}</Text>
-        <Text>Popularity: {item.popularity}</Text>
-        <Text>Release Date: {item.release_date || item.first_air_date}</Text>
-        <TouchableOpacity
-          style={styles.detailsButton}
-          onPress={() => navigation.navigate('MovieDetail', { movieId: item.id, mediaType: searchType })}
-        >
-          <Text style={styles.detailsButtonText}>
-            More Details <Icon name="info-circle" size={16} color="#fff" />
-          </Text>
-        </TouchableOpacity>
-      </View>
-    </View>
-  );
+
+  const handleSearchTypeChange = (itemValue) => {
+    setSearchType(itemValue);
+    setResults([]); 
+  };
+
+  const renderItem = ({ item }) => <CardComponent item={item} />;
 
   return (
     <View style={styles.container}>
-      <Text style={styles.label}>Search Movie/TV Show Name*</Text>
-      <View style={styles.inputContainer}>
-        <Icon name="search" size={16} color="gray" style={styles.searchIcon} />
+      <Text style={styles.label}>
+        Search Movie/TV Show Name <Text style={styles.required}>*</Text>
+      </Text>
+      <View style={[styles.inputContainer, error ? styles.errorBorder : null]}>
+        <Icon name="search" size={25} color="lightgray" style={styles.searchIcon} />
         <TextInput
-          style={[styles.input, error ? styles.errorBorder : null]}
+          style={styles.input}
           placeholder="i.e. James Bond, CSI"
           value={query}
-          onChangeText={(text) => setQuery(text)}
+          onChangeText={handleInputChange}
         />
       </View>
-      <Text style={styles.label}>Choose Search Type*</Text>
-      <Picker
-        selectedValue={searchType}
-        style={[styles.picker, error ? styles.errorBorder : null]}
-        onValueChange={(itemValue) => setSearchType(itemValue)}
-      >
-        <Picker.Item label="Movie" value="movie" />
-        <Picker.Item label="Multi" value="multi" />
-        <Picker.Item label="TV" value="tv" />
-      </Picker>
 
-      <TouchableOpacity style={styles.searchButton} onPress={searchMedia}>
-        <Text style={styles.searchButtonText}>Search</Text>
-      </TouchableOpacity>
+      <Text style={styles.label}>
+        Choose Search Type <Text style={styles.required}>*</Text>
+      </Text>
+
+     
+      <View style={styles.pickerButtonRow}>
+        <View style={[styles.pickerContainer, error ? styles.errorBorder : null]}>
+          <Picker
+            selectedValue={searchType}
+            style={styles.picker}
+            onValueChange={handleSearchTypeChange}
+          >
+            <Picker.Item label="Movie" value="movie" />
+            <Picker.Item label="Multi" value="multi" />
+            <Picker.Item label="TV" value="tv" />
+          </Picker>
+        </View>
+
+        <TouchableOpacity style={styles.searchButton}  onPress={() => searchMedia(searchType, query, setResults, setError)}>
+          <Text style={styles.searchButtonText}>
+            <Icon name="search" size={16} color="#fff" style={styles.searchIcon} /> Search
+          </Text>
+        </TouchableOpacity>
+      </View>
 
       {error ? <Text style={styles.errorText}>{error}</Text> : null}
 
-      {results.length === 0 && <Text style={styles.initiateSearchText}>Please initiate a search</Text>}
+      {results.length === 0 && (
+        <ScrollView contentContainerStyle={{ flexGrow: 1, justifyContent: 'flex-end', alignItems: 'center' }}>
+          <Text style={styles.initiateSearchText}>Please initiate a search</Text>
+        </ScrollView>
+      )}
 
       <FlatList
         data={results}
@@ -110,13 +98,17 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     marginBottom: 8,
   },
+  required: {
+    color: 'red',
+  },
   inputContainer: {
     flexDirection: 'row',
     alignItems: 'center',
     borderWidth: 1,
     borderColor: '#ccc',
     borderRadius: 8,
-    padding: 8,
+    paddingLeft: 8,
+    paddingRight: 8,
     marginBottom: 16,
   },
   input: {
@@ -126,19 +118,32 @@ const styles = StyleSheet.create({
   searchIcon: {
     marginRight: 8,
   },
-  picker: {
-    height: 50,
+  
+  pickerButtonRow: {
+    flexDirection: 'row', 
+    alignItems: 'center',
+    justifyContent: 'space-between',  
+  },
+  pickerContainer: {
+    flex: 1,
     borderWidth: 1,
-    borderColor: '#ccc',
+    borderColor: '#ccc',  
     borderRadius: 8,
-    marginBottom: 16,
+    backgroundColor: '#fff',
+    marginRight: 10,  
+  },
+  picker: {
+    height: 40,  
+    marginVertical: -4,  
   },
   searchButton: {
-    backgroundColor: '#0f4067',
-    padding: 10,
+    backgroundColor: '#1c94bc',
+    paddingVertical: 10,
+    paddingHorizontal: 15,
     borderRadius: 8,
-    marginTop: 10,
     alignItems: 'center',
+    justifyContent: 'center',
+    height: 40,  
   },
   searchButtonText: {
     color: 'white',
@@ -151,46 +156,12 @@ const styles = StyleSheet.create({
   },
   initiateSearchText: {
     textAlign: 'center',
-    fontSize: 18,
+    fontSize: 30,
     color: 'gray',
-    marginTop: 30,
+    fontWeight: 'bold',
   },
   resultsList: {
     marginTop: 20,
-  },
-  card: {
-    flexDirection: 'row',
-    padding: 10,
-    marginBottom: 10,
-    backgroundColor: '#fff',
-    borderRadius: 8,
-    elevation: 2,
-  },
-  image: {
-    width: 100,
-    height: 150,
-    borderRadius: 8,
-  },
-  cardContent: {
-    flex: 1,
-    paddingLeft: 10,
-    justifyContent: 'center',
-  },
-  itemTitle: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    marginBottom: 5,
-  },
-  detailsButton: {
-    backgroundColor: '#9edbe7',
-    padding: 10,
-    borderRadius: 8,
-    marginTop: 10,
-  },
-  detailsButtonText: {
-    color: 'white',
-    textAlign: 'center',
-    fontWeight: 'bold',
   },
   errorBorder: {
     borderColor: 'red',

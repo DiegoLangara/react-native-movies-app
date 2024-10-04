@@ -11,14 +11,14 @@ const Header = () => {
 
 const styles = StyleSheet.create({
   header: {
-    backgroundColor: '#0f4067',  // Blue background
+    backgroundColor: '#0f4067',
     paddingTop: 40,
     paddingBottom: 10,
     alignItems: 'center',
     marginTop: 0,
   },
   headerText: {
-    color: 'white',  // White text
+    color: 'white',
     fontSize: 20,
     fontWeight: 'bold',
   },
